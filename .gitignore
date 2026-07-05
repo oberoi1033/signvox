@@ -1,0 +1,27 @@
+# Node
+node_modules/
+isl-backend/node_modules/
+isl-translator/node_modules/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+isl-backend/venv/
+
+# Environment variables
+.env
+isl-backend/.env
+isl-translator/.env
+
+# Build output
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
