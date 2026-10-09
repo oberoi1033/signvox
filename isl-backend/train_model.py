@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from tensorflow import keras
-from tensorflow.keras import layers
+from sklearn.ensemble import RandomForestClassifier
 import pickle
 import os
 
@@ -30,44 +29,20 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y_encoded, test_size=0.2, random_state=42
 )
 
-# --- Build Model ---
-print("\n🔨 Building model...")
-model = keras.Sequential([
-    layers.Input(shape=(63,)),
-    layers.Dense(128, activation="relu"),
-    layers.Dropout(0.3),
-    layers.Dense(64, activation="relu"),
-    layers.Dropout(0.2),
-    layers.Dense(32, activation="relu"),
-    layers.Dense(num_classes, activation="softmax")
-])
-
-model.compile(
-    optimizer="adam",
-    loss="sparse_categorical_crossentropy",
-    metrics=["accuracy"]
-)
-
-model.summary()
-
-# --- Train ---
-print("\n🚀 Training model...")
-history = model.fit(
-    X_train, y_train,
-    epochs=50,
-    batch_size=16,
-    validation_data=(X_test, y_test),
-    verbose=1
-)
+# --- Build & Train Model ---
+print("\n🔨 Training classifier...")
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
 
 # --- Evaluate ---
-loss, accuracy = model.evaluate(X_test, y_test, verbose=0)
+accuracy = model.score(X_test, y_test)
 print(f"\n✅ Test Accuracy: {accuracy * 100:.2f}%")
 
 # --- Save Model & Encoder ---
-model.save("isl_model.h5")
+with open("isl_model.pkl", "wb") as f:
+    pickle.dump(model, f)
 with open("label_encoder.pkl", "wb") as f:
     pickle.dump(encoder, f)
 
-print("\n🎉 Model saved as isl_model.h5")
+print("\n🎉 Model saved as isl_model.pkl")
 print("🎉 Label encoder saved as label_encoder.pkl")

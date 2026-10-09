@@ -1,6 +1,7 @@
 # Node
 node_modules/
 isl-backend/node_modules/
+isl-auth-backend/node_modules/
 isl-translator/node_modules/
 
 # Python
@@ -11,12 +12,15 @@ isl-backend/venv/
 
 # Environment variables
 .env
+.env.local
 isl-backend/.env
+isl-auth-backend/.env
 isl-translator/.env
 
 # Build output
 dist/
 build/
+isl-translator/build/
 
 # OS files
 .DS_Store

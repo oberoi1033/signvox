@@ -46,12 +46,26 @@ export default function App() {
     if (!imageSrc) return;
 
     try {
-      const res = await axios.post("http://localhost:5000/predict", {
+      const mlUrl = process.env.REACT_APP_ML_URL || "http://localhost:5005/predict";
+      const res = await axios.post(mlUrl, {
         image: imageSrc,
       });
 
       if (res.data.prediction) {
         setPrediction(res.data.prediction);
+
+        // If a JWT exists in localStorage, save translation to isl-auth-backend history
+        const token = localStorage.getItem("token");
+        if (token) {
+          axios.post(
+            "http://localhost:5001/api/history",
+            { translatedText: res.data.prediction },
+            { headers: { Authorization: `Bearer ${token}` } }
+          ).catch((err) => {
+            console.error("Failed to save translation to history:", err);
+          });
+        }
+
         setConfidence(res.data.confidence);
         setNoHand(false);
         setPulse(true);
@@ -92,7 +106,7 @@ export default function App() {
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  const emoji = prediction ? (GESTURE_EMOJIS[prediction] || "🤟") : "🤟";
+  const emoji = prediction ? (GESTURE_EMOJIS[prediction.toLowerCase()] || GESTURE_EMOJIS[prediction] || "🤟") : "🤟";
 
   return (
     <div style={{
@@ -279,6 +293,7 @@ export default function App() {
 
             <Webcam
               ref={webcamRef}
+              mirrored={true}
               screenshotFormat="image/jpeg"
               videoConstraints={videoConstraints}
               style={{ width: "100%", display: "block" }}
